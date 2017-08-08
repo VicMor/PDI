@@ -79,9 +79,9 @@ public class Operations {
         double sumatoria = 0;
         double sumatoria_g = 0;
         double sumatoria_b = 0;
-        XYSeries red_dataset = new XYSeries("red");
-        XYSeries green_dataset = new XYSeries("green");
-        XYSeries blue_dataset = new XYSeries("blue");        
+        XYSeries red_dataset = new XYSeries("R-channel");
+        XYSeries green_dataset = new XYSeries("G-channel");
+        XYSeries blue_dataset = new XYSeries("B-channel");        
         for (int i = 0; i < red_histogram.length; i++) {
             double normalized_value_r = red_histogram[i]/image_size;            
             double normalized_value_g = green_histogram[i]/image_size;            
