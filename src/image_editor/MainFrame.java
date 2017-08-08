@@ -5,15 +5,20 @@
  */
 package image_editor;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.xy.XYSeriesCollection;
 
 /**
  *
@@ -26,7 +31,7 @@ public class MainFrame extends javax.swing.JFrame {
     private FileNameExtensionFilter format_filter = new FileNameExtensionFilter("Archivos de imágen","jpg","jpeg","png");
     File f_image;
     BufferedImage bf_image = null;
-    
+    Operations operation = new Operations();
     
     public MainFrame() {        
         initComponents();
@@ -53,6 +58,8 @@ public class MainFrame extends javax.swing.JFrame {
         openMenu = new javax.swing.JMenuItem();
         saveMenu = new javax.swing.JMenuItem();
         exitMenu = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        drawHistogram = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setPreferredSize(new java.awt.Dimension(900, 700));
@@ -67,19 +74,11 @@ public class MainFrame extends javax.swing.JFrame {
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(scroll_image)
+            .addComponent(scroll_image, javax.swing.GroupLayout.DEFAULT_SIZE, 653, Short.MAX_VALUE)
         );
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 447, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 150, Short.MAX_VALUE)
-        );
+        jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        jPanel2.setLayout(new java.awt.BorderLayout());
 
         jMenu1.setText("File");
 
@@ -112,6 +111,18 @@ public class MainFrame extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu1);
 
+        jMenu2.setText("Visualization");
+
+        drawHistogram.setText("Histogram");
+        drawHistogram.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                drawHistogramActionPerformed(evt);
+            }
+        });
+        jMenu2.add(drawHistogram);
+
+        jMenuBar1.add(jMenu2);
+
         setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -130,10 +141,10 @@ public class MainFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 423, Short.MAX_VALUE))
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
 
@@ -147,16 +158,15 @@ public class MainFrame extends javax.swing.JFrame {
     private void openMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_openMenuActionPerformed
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle("Choose your file");
+        chooser.setCurrentDirectory(new File("."));
         chooser.setFileFilter(format_filter);
         int selection = chooser.showOpenDialog(this);
         if (selection == JFileChooser.APPROVE_OPTION){
             f_image = chooser.getSelectedFile();                       
-            try {
-                bf_image = ImageIO.read(f_image);                
-                lbl_image.setIcon(new ImageIcon(bf_image));
-            } catch (IOException ex) {
-                Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            bf_image = operation.openImage(f_image);                
+            lbl_image.setIcon(new ImageIcon(bf_image));
+            operation.getHistogram(bf_image);
+           
         }        
     }//GEN-LAST:event_openMenuActionPerformed
 
@@ -166,6 +176,7 @@ public class MainFrame extends javax.swing.JFrame {
         int selection = chooser.showSaveDialog(this);
         if (selection == JFileChooser.APPROVE_OPTION){
             f_image = chooser.getSelectedFile();            
+            String answer = operation.saveImage(f_image, bf_image);
             try {
                 ImageIO.write(bf_image, "jpg", f_image);
             } catch (Exception e) {
@@ -173,6 +184,17 @@ public class MainFrame extends javax.swing.JFrame {
             
         }
     }//GEN-LAST:event_saveMenuActionPerformed
+
+    private void drawHistogramActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_drawHistogramActionPerformed
+        XYSeriesCollection red_dataset = operation.drawHistogram();      
+        //JFreeChart histogram_chart = ChartFactory.createBarChart("R-Histogram", "Color", "Frecuency", red_dataset, PlotOrientation.VERTICAL, false, true, false);       
+        JFreeChart histogram_chart = ChartFactory.createXYLineChart("R-Histogram", "Tone", "Frecuency", red_dataset, PlotOrientation.VERTICAL, false, true, false);
+        histogram_chart.getPlot().setBackgroundPaint(Color.LIGHT_GRAY);
+        ChartPanel histogram_panel = new ChartPanel(histogram_chart);
+        jPanel2.removeAll();
+        jPanel2.add(histogram_panel, BorderLayout.CENTER);
+        jPanel2.validate();        
+    }//GEN-LAST:event_drawHistogramActionPerformed
    
     /**
      * @param args the command line arguments
@@ -210,8 +232,10 @@ public class MainFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem drawHistogram;
     private javax.swing.JMenuItem exitMenu;
     private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
