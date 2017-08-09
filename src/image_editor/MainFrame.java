@@ -5,6 +5,7 @@
  */
 package image_editor;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -17,6 +18,8 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -186,10 +189,19 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_saveMenuActionPerformed
 
     private void drawHistogramActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_drawHistogramActionPerformed
-        XYSeriesCollection red_dataset = operation.drawHistogram();      
+        XYSeriesCollection rgb_dataset = operation.drawHistogram();      
         //JFreeChart histogram_chart = ChartFactory.createBarChart("R-Histogram", "Color", "Frecuency", red_dataset, PlotOrientation.VERTICAL, false, true, false);       
-        JFreeChart histogram_chart = ChartFactory.createXYLineChart("R-Histogram", "Tone", "Frecuency", red_dataset, PlotOrientation.VERTICAL, false, true, false);
-        histogram_chart.getPlot().setBackgroundPaint(Color.LIGHT_GRAY);
+        JFreeChart histogram_chart = ChartFactory.createXYLineChart("RGB-Histogram", "Color intensity", "Frecuency", rgb_dataset, PlotOrientation.VERTICAL, true, true, false);
+        XYPlot plot = histogram_chart.getXYPlot();
+        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();        
+        renderer.setSeriesPaint(0, Color.RED);
+        renderer.setSeriesPaint(1, Color.GREEN);
+        renderer.setSeriesPaint(2, Color.BLUE);
+        renderer.setSeriesShapesVisible(0,false);
+        renderer.setSeriesShapesVisible(1,false);
+        renderer.setSeriesShapesVisible(2,false);
+        plot.setRenderer(renderer);
+        
         ChartPanel histogram_panel = new ChartPanel(histogram_chart);
         jPanel2.removeAll();
         jPanel2.add(histogram_panel, BorderLayout.CENTER);
