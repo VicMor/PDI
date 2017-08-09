@@ -94,7 +94,7 @@ public class Operations {
             sumatoria_b += normalized_value_b;
             //System.out.println("i:"+i+" valor: "+red_histogram[i]);
         }
-        System.out.println("Sumatoria_r:"+sumatoria+"\nSumatoria_g:"+sumatoria_g+"\nSumatoria_b:"+sumatoria_b);
+        //System.out.println("Sumatoria_r:"+sumatoria+"\nSumatoria_g:"+sumatoria_g+"\nSumatoria_b:"+sumatoria_b);
         XYSeriesCollection r_dataset = new XYSeriesCollection();
         r_dataset.addSeries(red_dataset);
         r_dataset.addSeries(green_dataset);
