@@ -10,6 +10,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -21,6 +23,7 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 /**
@@ -34,7 +37,8 @@ public class MainFrame extends javax.swing.JFrame {
     private FileNameExtensionFilter format_filter = new FileNameExtensionFilter("Archivos de imágen","jpg","jpeg","png","bmp");
     File f_image;
     BufferedImage bf_image = null;
-    Operations operation = new Operations();
+    BufferedImage modified_image = null;
+    Operations operation = new Operations();    
     
     public MainFrame() {        
         initComponents();
@@ -56,16 +60,21 @@ public class MainFrame extends javax.swing.JFrame {
         scroll_image = new javax.swing.JScrollPane();
         lbl_image = new javax.swing.JLabel();
         jPanel2 = new javax.swing.JPanel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        lbl_mod_image = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         openMenu = new javax.swing.JMenuItem();
         saveMenu = new javax.swing.JMenuItem();
         exitMenu = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        jMenu3 = new javax.swing.JMenu();
+        menuNegative = new javax.swing.JMenuItem();
+        menu_gamma_correction = new javax.swing.JMenuItem();
         drawHistogram = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setPreferredSize(new java.awt.Dimension(900, 700));
+        setPreferredSize(new java.awt.Dimension(1024, 800));
 
         scroll_image.setViewportView(lbl_image);
 
@@ -73,7 +82,7 @@ public class MainFrame extends javax.swing.JFrame {
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(scroll_image, javax.swing.GroupLayout.DEFAULT_SIZE, 556, Short.MAX_VALUE)
+            .addComponent(scroll_image, javax.swing.GroupLayout.PREFERRED_SIZE, 500, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -82,6 +91,10 @@ public class MainFrame extends javax.swing.JFrame {
 
         jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
         jPanel2.setLayout(new java.awt.BorderLayout());
+
+        jScrollPane1.setViewportView(lbl_mod_image);
+
+        jPanel2.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
         jMenu1.setText("File");
 
@@ -114,7 +127,27 @@ public class MainFrame extends javax.swing.JFrame {
 
         jMenuBar1.add(jMenu1);
 
-        jMenu2.setText("Visualization");
+        jMenu2.setText("Operations");
+
+        jMenu3.setText("Point Operations");
+
+        menuNegative.setText("Negative");
+        menuNegative.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menuNegativeActionPerformed(evt);
+            }
+        });
+        jMenu3.add(menuNegative);
+
+        menu_gamma_correction.setText("Gamma correction");
+        menu_gamma_correction.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                menu_gamma_correctionActionPerformed(evt);
+            }
+        });
+        jMenu3.add(menu_gamma_correction);
+
+        jMenu2.add(jMenu3);
 
         drawHistogram.setText("Histogram");
         drawHistogram.addActionListener(new java.awt.event.ActionListener() {
@@ -134,9 +167,9 @@ public class MainFrame extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 524, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -145,9 +178,7 @@ public class MainFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
 
@@ -190,24 +221,30 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void drawHistogramActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_drawHistogramActionPerformed
         XYSeriesCollection rgb_dataset = operation.drawHistogram();      
-        //JFreeChart histogram_chart = ChartFactory.createBarChart("R-Histogram", "Color", "Frecuency", red_dataset, PlotOrientation.VERTICAL, false, true, false);       
-        JFreeChart histogram_chart = ChartFactory.createXYLineChart("RGB-Histogram", "Color intensity", "Frecuency", rgb_dataset, PlotOrientation.VERTICAL, true, true, false);
-        XYPlot plot = histogram_chart.getXYPlot();
-        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();        
-        renderer.setSeriesPaint(0, Color.RED);
-        renderer.setSeriesPaint(1, Color.GREEN);
-        renderer.setSeriesPaint(2, Color.BLUE);
-        renderer.setSeriesShapesVisible(0,false);
-        renderer.setSeriesShapesVisible(1,false);
-        renderer.setSeriesShapesVisible(2,false);
-        plot.setRenderer(renderer);
-        
-        ChartPanel histogram_panel = new ChartPanel(histogram_chart);
-        jPanel2.removeAll();
-        jPanel2.add(histogram_panel, BorderLayout.CENTER);
-        jPanel2.validate();        
+        XYSeries red_serie = rgb_dataset.getSeries(0);
+        XYSeries green_serie = rgb_dataset.getSeries(1);
+        XYSeries blue_serie = rgb_dataset.getSeries(2);
+        Histograms histograms_frame = new Histograms();
+        histograms_frame.setVisible(true);
+        histograms_frame.drawHistograms(red_serie, green_serie, blue_serie);
     }//GEN-LAST:event_drawHistogramActionPerformed
-   
+
+    private void menuNegativeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuNegativeActionPerformed
+        modified_image = operation.negativeOperation(bf_image);
+        lbl_mod_image.setIcon(new ImageIcon(modified_image));
+    }//GEN-LAST:event_menuNegativeActionPerformed
+
+    private void menu_gamma_correctionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_gamma_correctionActionPerformed
+        GammaCorrection gamma_window = new GammaCorrection(bf_image);
+        gamma_window.setVisible(true);        
+        //modified_image = operation.modified_image;
+        //lbl_mod_image.setIcon(new ImageIcon(modified_image));        
+    }//GEN-LAST:event_menu_gamma_correctionActionPerformed
+
+    public void setImage(BufferedImage new_image){
+        lbl_mod_image.setIcon(new ImageIcon(new_image));
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -248,10 +285,15 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem exitMenu;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lbl_image;
+    private javax.swing.JLabel lbl_mod_image;
+    private javax.swing.JMenuItem menuNegative;
+    private javax.swing.JMenuItem menu_gamma_correction;
     private javax.swing.JMenuItem openMenu;
     private javax.swing.JMenuItem saveMenu;
     private javax.swing.JScrollPane scroll_image;

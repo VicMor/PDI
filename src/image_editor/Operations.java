@@ -26,10 +26,10 @@ public class Operations {
     double[] red_histogram = new double[256];        
     double[] green_histogram = new double[256];
     double[] blue_histogram = new double[256];
+    public BufferedImage modified_image = null;
     int image_size;
     
-    
-    public BufferedImage openImage(File ima_file){
+    public BufferedImage openImage(File ima_file){    
     BufferedImage original_image = null;
         try {
             original_image = ImageIO.read(ima_file);
@@ -66,14 +66,64 @@ public class Operations {
                     green_histogram[valG] += 1;
                     int valB = c.getBlue();    
                     blue_histogram[valB] += 1;
-                    //System.out.println("r:"+valR);
-                    //System.out.println("r:"+valR+" g:"+valG+" b:"+valB);
                 }
             }
         System.out.println("Histogram obtained");
         return new Object[]{red_histogram, green_histogram, blue_histogram}; 
     }
     
+    public BufferedImage negativeOperation(BufferedImage image){                
+        int w_size = image.getWidth();
+        int h_size = image.getHeight();        
+        BufferedImage negativeImage = new BufferedImage(w_size, h_size, BufferedImage.TYPE_INT_RGB);
+        for (int i = 0; i < w_size; i++) {
+            for (int j = 0; j < h_size; j++) {
+                int pixel_value = image.getRGB(i, j);
+                    Color c = new Color(pixel_value);
+                    int valR = c.getRed();                                        
+                    int valG = c.getGreen();                    
+                    int valB = c.getBlue(); 
+                    int newR = 255 - valR;
+                    int newG = 255 - valG;
+                    int newB = 255 - valB;
+                    int new_color = (newR << 16) | (newG << 8) | newB;
+                    negativeImage.setRGB(i, j, new_color);                   
+            }
+        }        
+        return negativeImage;
+    }
+    
+    public BufferedImage gammaCorrection(BufferedImage image, double gamma){
+        int w_size = image.getWidth();
+        int h_size = image.getHeight();        
+        BufferedImage gammaImage = new BufferedImage(w_size, h_size, BufferedImage.TYPE_INT_RGB);
+        for (int i = 0; i < w_size; i++) {
+            for (int j = 0; j < h_size; j++) {
+                int pixel_value = image.getRGB(i, j);
+                    Color c = new Color(pixel_value);
+                    double valR = c.getRed();                                        
+                    double valG = c.getGreen();                    
+                    double valB = c.getBlue(); 
+                   // System.out.println("R:"+valR+" G:"+valG+" B:"+valB);
+                    double temp_r = valR/255;
+                    double temp_g = valG/255;
+                    double temp_b = valB/255;
+                    //System.out.println("temp_r:"+temp_r);
+                    double red = 255 * Math.pow(temp_r, gamma);
+                    double green = 255 * Math.pow(temp_g, gamma);
+                    double blue = 255 * Math.pow(temp_b, gamma);
+                    //System.out.println("Red:"+red);
+                    int newR = (int) red;
+                    int newG = (int) green;
+                    int newB = (int) blue;
+                    //System.out.println("Red entero:"+newR);
+                    int new_color = (newR << 16) | (newG << 8) | newB;
+                    gammaImage.setRGB(i, j, new_color);                   
+            }
+        }
+        modified_image = gammaImage;
+        return gammaImage;
+    }
     
     public XYSeriesCollection drawHistogram(){                        
         double sumatoria = 0;
