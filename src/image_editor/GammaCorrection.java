@@ -14,7 +14,7 @@ import javax.swing.ImageIcon;
  */
 public class GammaCorrection extends javax.swing.JFrame {
     BufferedImage image = null;
-    BufferedImage gamma_image = null;
+    BufferedImage gamma_image = null;    
     /**
      * Creates new form GammaCorrection
      */
@@ -146,8 +146,9 @@ public class GammaCorrection extends javax.swing.JFrame {
     private void btn_applyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_applyActionPerformed
         this.dispose();
         MainFrame mf = new MainFrame();
+        mf.setOriginalImage(image);
+        mf.setModifiedImage(gamma_image);
         mf.setVisible(true);
-        mf.setImage(gamma_image);
     }//GEN-LAST:event_btn_applyActionPerformed
 
     /**

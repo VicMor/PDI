@@ -212,7 +212,7 @@ public class MainFrame extends javax.swing.JFrame {
             f_image = chooser.getSelectedFile();            
             String answer = operation.saveImage(f_image, bf_image);
             try {
-                ImageIO.write(bf_image, "jpg", f_image);
+                ImageIO.write(modified_image, "jpg", f_image);
             } catch (Exception e) {
             }
             
@@ -236,12 +236,25 @@ public class MainFrame extends javax.swing.JFrame {
 
     private void menu_gamma_correctionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menu_gamma_correctionActionPerformed
         GammaCorrection gamma_window = new GammaCorrection(bf_image);
-        gamma_window.setVisible(true);        
-        //modified_image = operation.modified_image;
-        //lbl_mod_image.setIcon(new ImageIcon(modified_image));        
+        gamma_window.setVisible(true);    
+        this.dispose();
     }//GEN-LAST:event_menu_gamma_correctionActionPerformed
 
-    public void setImage(BufferedImage new_image){
+    public BufferedImage getOriginalImage(){
+        return bf_image;
+    }
+    
+    public BufferedImage getModifiedImage(){
+        return modified_image;
+    }
+    
+    public void setOriginalImage(BufferedImage new_image){
+        bf_image = new_image;
+        lbl_image.setIcon(new ImageIcon(new_image));
+    }
+    
+    public void setModifiedImage(BufferedImage new_image){
+        modified_image = new_image;
         lbl_mod_image.setIcon(new ImageIcon(new_image));
     }
     
@@ -275,7 +288,8 @@ public class MainFrame extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new MainFrame().setVisible(true);
+                MainFrame mf = new MainFrame();
+                mf.setVisible(true);
             }
         });
     }
@@ -291,7 +305,7 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel lbl_image;
-    private javax.swing.JLabel lbl_mod_image;
+    public javax.swing.JLabel lbl_mod_image;
     private javax.swing.JMenuItem menuNegative;
     private javax.swing.JMenuItem menu_gamma_correction;
     private javax.swing.JMenuItem openMenu;
