@@ -125,6 +125,96 @@ public class Operations {
         return gammaImage;
     }
     
+    public BufferedImage grayscaleAverage(BufferedImage image){
+        int w_size = image.getWidth();
+        int h_size = image.getHeight();        
+        BufferedImage grayscale_image = new BufferedImage(w_size, h_size, BufferedImage.TYPE_INT_RGB);
+        for (int i = 0; i < w_size; i++) {
+            for (int j = 0; j < h_size; j++) {
+                int pixel_value = image.getRGB(i, j);
+                    Color c = new Color(pixel_value);
+                    double valR = c.getRed();                                        
+                    double valG = c.getGreen();                    
+                    double valB = c.getBlue(); 
+                    //System.out.println("temp_r:"+temp_r);
+                    double red = (valR+valG+valB)/3;
+                    double green = (valR+valG+valB)/3;
+                    double blue = (valR+valG+valB)/3;
+                    //System.out.println("Red:"+red);
+                    int newR = (int) red;
+                    int newG = (int) green;
+                    int newB = (int) blue;
+                    //System.out.println("Red entero:"+newR);
+                    int new_color = (newR << 16) | (newG << 8) | newB;
+                    grayscale_image.setRGB(i, j, new_color);                   
+            }
+        }
+        modified_image = grayscale_image;
+        return grayscale_image;
+    }
+    
+    public BufferedImage grayscaleWeightedSum(BufferedImage image){
+        int w_size = image.getWidth();
+        int h_size = image.getHeight();      
+        double w_red = 0.2125;
+        double w_green = 0.7154;
+        double w_blue = 0.072;
+        BufferedImage grayscale_image = new BufferedImage(w_size, h_size, BufferedImage.TYPE_INT_RGB);
+        for (int i = 0; i < w_size; i++) {
+            for (int j = 0; j < h_size; j++) {
+                int pixel_value = image.getRGB(i, j);
+                    Color c = new Color(pixel_value);
+                    double valR = c.getRed();                                        
+                    double valG = c.getGreen();                    
+                    double valB = c.getBlue(); 
+                    //System.out.println("temp_r:"+temp_r);
+                    double red = (w_red* valR)+(w_green*valG)+(w_blue*valB);
+                    double green = (w_red* valR)+(w_green*valG)+(w_blue*valB);
+                    double blue = (w_red* valR)+(w_green*valG)+(w_blue*valB);
+                    //System.out.println("Red:"+red);
+                    int newR = (int) red;
+                    int newG = (int) green;
+                    int newB = (int) blue;
+                    //System.out.println("Red entero:"+newR);
+                    int new_color = (newR << 16) | (newG << 8) | newB;
+                    grayscale_image.setRGB(i, j, new_color);                   
+            }
+        }
+        modified_image = grayscale_image;
+        return grayscale_image;
+    }
+    
+    public BufferedImage grayscaleWeightedSumCustomized(BufferedImage image){
+        int w_size = image.getWidth();
+        int h_size = image.getHeight();      
+        double w_red = 0.2125;
+        double w_green = 0.7154;
+        double w_blue = 0.1;
+        BufferedImage gs_image = new BufferedImage(w_size, h_size, BufferedImage.TYPE_INT_RGB);
+        for (int i = 0; i < w_size; i++) {
+            for (int j = 0; j < h_size; j++) {
+                int pixel_value = image.getRGB(i, j);
+                    Color c = new Color(pixel_value);
+                    double valR = c.getRed();                                        
+                    double valG = c.getGreen();                    
+                    double valB = c.getBlue(); 
+                    //System.out.println("temp_r:"+temp_r);
+                    double red = (w_red* valR)+(w_green*valG)+(w_blue*valB);
+                    double green = (w_red* valR)+(w_green*valG)+(w_blue*valB);
+                    double blue = (w_red* valR)+(w_green*valG)+(w_blue*valB);
+                    //System.out.println("Red:"+red);
+                    int newR = (int) red;
+                    int newG = (int) green;
+                    int newB = (int) blue;
+                    //System.out.println("Red entero:"+newR);
+                    int new_color = (newR << 16) | (newG << 8) | newB;
+                    gs_image.setRGB(i, j, new_color);                   
+            }
+        }
+        modified_image = gs_image;
+        return gs_image;
+    }
+    
     public XYSeriesCollection drawHistogram(){                        
         double sumatoria = 0;
         double sumatoria_g = 0;

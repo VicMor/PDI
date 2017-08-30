@@ -45,6 +45,7 @@ public class MainFrame extends javax.swing.JFrame {
         this.setTitle("Image Editor V1.0");
         this.setLocationRelativeTo(MainFrame.this);
         //this.setResizable(false);
+        getHistogram();
     }
 
     /**
@@ -213,8 +214,8 @@ public class MainFrame extends javax.swing.JFrame {
             f_image = chooser.getSelectedFile();                       
             bf_image = operation.openImage(f_image);                
             lbl_image.setIcon(new ImageIcon(bf_image));
-            operation.getHistogram(bf_image);
-           
+            lbl_mod_image.setIcon(null);
+            //operation.getHistogram(bf_image);           
         }        
     }//GEN-LAST:event_openMenuActionPerformed
 
@@ -234,6 +235,7 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_saveMenuActionPerformed
 
     private void drawHistogramActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_drawHistogramActionPerformed
+        operation.getHistogram(bf_image);
         XYSeriesCollection rgb_dataset = operation.drawHistogram();      
         XYSeries red_serie = rgb_dataset.getSeries(0);
         XYSeries green_serie = rgb_dataset.getSeries(1);
@@ -255,7 +257,9 @@ public class MainFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menu_gamma_correctionActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        System.out.println("GrayScale Image");
+        Grayscale gray_window = new Grayscale(bf_image);
+        gray_window.setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     public BufferedImage getOriginalImage(){
@@ -274,6 +278,12 @@ public class MainFrame extends javax.swing.JFrame {
     public void setModifiedImage(BufferedImage new_image){
         modified_image = new_image;
         lbl_mod_image.setIcon(new ImageIcon(new_image));
+    }
+    
+    public void getHistogram(){
+      if (bf_image != null){
+            operation.getHistogram(bf_image);
+        }
     }
     
     /**
